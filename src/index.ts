@@ -212,7 +212,7 @@ export class Template {
                             eachNode.$updated?.(element, eachNode);
 
                             if (i === 0) {
-                                parent.appendChild(element);
+                                parent.prepend(element);
                             } else {
                                 const existedNode =
                                     eachNodes
