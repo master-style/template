@@ -94,23 +94,24 @@ export class Template {
                         const eachNode = eachNodes[i];
                         const eachOldNode = eachOldNodes && eachOldNodes[i];
                         const existing = !!eachOldNode?.element;
-                        const same = eachNode.tag === eachOldNode?.tag;
+                        const sameTag = eachNode.tag === eachOldNode?.tag;
                         const hasIf = eachNode.hasOwnProperty('$if');
                         const whether = hasIf && eachNode.$if || !hasIf;
 
                         if (
                             existing && !whether ||
-                            existing && whether && !same
+                            existing && whether && !sameTag
                         ) {
                             removeNode(eachOldNode);
                         }
 
                         if (!whether) continue;
 
-                        if (existing && same) {
+                        if (existing && sameTag) {
 
                             const element = eachNode.element = eachOldNode?.element;
                             const attr = eachNode.attr;
+                            const oldAttr = eachOldNode?.attr;
                             const css = eachNode.$css;
                             const oldCss = eachOldNode?.$css;
                             const html = eachNode.$html;
@@ -120,13 +121,21 @@ export class Template {
                             const oldText = eachOldNode?.$text;
                             const textUpdated = '$text' in eachNode && text !== oldText;
 
+                            if (oldAttr) {
+                                for (const attrKey in oldAttr) {
+                                    // 若新 attr 不應包含舊 attr
+                                    if (!(attrKey in attr)) {
+                                        element.removeAttribute(attrKey);
+                                    }
+                                }
+                            }
+
                             if (attr) {
-                                const oldAttr = eachOldNode?.attr;
-                                for (const eachAttrKey in attr) {
-                                    const value = attr[eachAttrKey];
-                                    const oldValue = oldAttr[eachAttrKey];
+                                for (const attrKey in attr) {
+                                    const value = attr[attrKey];
+                                    const oldValue = oldAttr[attrKey];
                                     if (value !== oldValue) {
-                                        element.attr(eachAttrKey, value);
+                                        element.attr(attrKey, value);
                                     }
                                 }
                             }
