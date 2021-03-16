@@ -120,14 +120,37 @@ export class Template {
                             const text = eachNode.$text;
                             const oldText = eachOldNode?.$text;
                             const textUpdated = '$text' in eachNode && text !== oldText;
+                            const oldOn = eachOldNode.$on;
 
+                            // clear
                             if (oldAttr) {
                                 for (const attrKey in oldAttr) {
-                                    // 若新 attr 不應包含舊 attr
                                     if (!(attrKey in attr)) {
                                         element.removeAttribute(attrKey);
                                     }
                                 }
+                            }
+
+                            // clear
+                            if (oldCss) {
+                                for (const propKey in oldCss) {
+                                    if (!(propKey in css)) {
+                                        element.style.removeProperty(propKey);
+                                    }
+                                }
+                            }
+
+                            // clear
+                            for (const eventType in oldOn) {
+                                const eachHandle = oldOn[eventType];
+                                element.off(eachHandle);
+                            }
+
+                            // clear
+                            if (!('$html' in eachNode) && ('$html' in eachOldNode)) {
+                                element.innerHTML = '';
+                            } else if (!('$text' in eachNode) && ('$text' in eachOldNode)) {
+                                element.textContent = '';
                             }
 
                             if (attr) {
@@ -140,17 +163,12 @@ export class Template {
                                 }
                             }
 
-                            for (const eachPropKey in css) {
-                                const value = css[eachPropKey];
-                                const oldValue = oldCss[eachPropKey];
+                            for (const propKey in css) {
+                                const value = css[propKey];
+                                const oldValue = oldCss[propKey];
                                 if (value !== oldValue) {
-                                    element.css(eachPropKey, value);
+                                    element.css(propKey, value);
                                 }
-                            }
-
-                            for (const eachEventType in eachOldNode?.$on) {
-                                const eachHandle = eachOldNode.$on[eachEventType];
-                                element.off(eachHandle);
                             }
 
                             for (const eachEventType in eachNode?.$on) {
