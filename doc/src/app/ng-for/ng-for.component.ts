@@ -36,5 +36,15 @@ export class NgForComponent implements OnInit {
         this.data.splice(2, 1, { id: 'replace-' + new Date().getTime() });
     }
 
+    exchange() {
+        const a = this.data[1];
+        const b = this.data[3];
+        this.data[3] = a;
+        this.data[1] = b;
+    }
+
+    trackById(index, data) {
+        return data.id;
+    }
 
 }

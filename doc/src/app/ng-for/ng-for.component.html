@@ -3,5 +3,6 @@
     <button (click)="push()">push</button>
     <button (click)="splice()">splice</button>
     <button (click)="replace()">replace</button>
-    <div *ngFor="let eachData of data" class="shine">{{ eachData.id }}</div>
+    <button (click)="exchange()">exchange</button>
+    <div *ngFor="let eachData of data; trackBy: trackById" class="shine">{{ eachData.id }}</div>
 </div>
