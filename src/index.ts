@@ -15,6 +15,7 @@ export interface TemplateNode {
     $text?: string;
     $if?: boolean;
     $css?: { [key: string]: any };
+    $id?: string;
     $namespace?: string;
     $created?: <T extends Element>(element?: T, node?: TemplateNode) => void;
     $removed?: <T extends Element>(element?: T, node?: TemplateNode) => void;
@@ -81,34 +82,57 @@ export class Template {
 
         if (this.nodes.length && this.container === container) {
             (function renderNodes(eachNodes, eachOldNodes, parent) {
-                if (!eachNodes?.length && eachOldNodes?.length) {
-                    removeNodes(eachOldNodes);
+                const eachIfNodes = eachNodes?.filter(eachNode => {
+                    const hasIf = eachNode.hasOwnProperty('$if');
+                    return hasIf && eachNode.$if || !hasIf;
+                });
+
+                const eachIfOldNodes = eachOldNodes?.filter(eachOldNode => {
+                    const hasIf = eachOldNode.hasOwnProperty('$if');
+                    return hasIf && eachOldNode.$if || !hasIf;
+                });
+
+                console.log(eachIfNodes);
+                console.log(eachIfOldNodes);
+
+                if (!eachIfNodes?.length && eachIfOldNodes?.length) {
+                    removeNodes(eachIfOldNodes);
                 } else {
+                    let changedIndex = 0;
+                    for (let i = 0; i < eachIfNodes?.length; i++) {
+                        const eachNode = eachIfNodes[i];
+                        let eachOldNode, existing, sameTag, sameId, oldElement;
 
-                    // tslint:disable-next-line: prefer-for-of
-                    if (eachOldNodes?.length > eachNodes?.length) {
-                        removeNodes(eachOldNodes.splice(eachNodes?.length));
-                    }
+                        const reloadParams = () => {
+                            eachOldNode = eachIfOldNodes && eachIfOldNodes[i - changedIndex];
+                            existing = !!eachOldNode?.element;
+                            sameTag = eachNode.tag === eachOldNode?.tag;
+                            sameId = !eachOldNode?.$id || (eachNode.$id === eachOldNode.$id);
+                            oldElement = undefined;
 
-                    for (let i = 0; i < eachNodes?.length; i++) {
-                        const eachNode = eachNodes[i];
-                        const eachOldNode = eachOldNodes && eachOldNodes[i];
-                        const existing = !!eachOldNode?.element;
-                        const sameTag = eachNode.tag === eachOldNode?.tag;
-                        const hasIf = eachNode.hasOwnProperty('$if');
-                        const whether = hasIf && eachNode.$if || !hasIf;
+                            if (eachNode.$id && !sameId) {
+                                const oldNode = eachIfOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
+                                if (oldNode) {
+                                    oldElement = oldNode.element;
+                                }
+                            }
+                        };
+                        reloadParams();
 
-                        if (
-                            existing && !whether ||
-                            existing && whether && !sameTag
-                        ) {
+                        if (eachOldNode?.$id && !sameId) {
+                            const node = eachIfNodes.find(eachIfNode => eachIfNode.$id === eachOldNode.$id);
+                            if (!node) {
+                                removeNode(eachOldNode);
+                                changedIndex--;
+                                reloadParams();
+                            }
+                        }
+
+                        if (existing && !sameTag) {
                             removeNode(eachOldNode);
                         }
 
-                        if (!whether) continue;
-
-                        if (existing && sameTag) {
-
+                        if (existing && sameTag && !oldElement && sameId) {
                             const element = eachNode.element = eachOldNode?.element;
                             const attr = eachNode.attr;
                             const oldAttr = eachOldNode?.attr;
@@ -190,21 +214,29 @@ export class Template {
                                 eachOldNode.children = [];
                             }
 
-                            renderNodes(eachNode?.children, eachOldNode?.children, element);
+                            renderNodes(
+                                eachNode?.children,
+                                eachOldNode?.children, 
+                                element);
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
-                            const element = eachNode.element = $(
-                                eachNode.$namespace
-                                    ? document.createElementNS(eachNode.$namespace, eachNode.tag)
-                                    : eachNode.tag === 'div'
-                                        ? div.cloneNode()
-                                        : document.createElement(eachNode.tag)
-                            );
+                            let element;
+                            if (oldElement) {
+                                element = eachNode.element = oldElement;
+                            } else {
+                                element = eachNode.element = $(
+                                    eachNode.$namespace
+                                        ? document.createElementNS(eachNode.$namespace, eachNode.tag)
+                                        : eachNode.tag === 'div'
+                                            ? div.cloneNode()
+                                            : document.createElement(eachNode.tag));
+                                changedIndex++;
+                            }
 
                             eachNode.attr && element.attr(eachNode.attr);
                             eachNode.$css && element.css(eachNode.$css);
-
+                           
                             for (const eachEventType in eachNode?.$on) {
                                 const eachHandle = eachNode.$on[eachEventType];
                                 if (eachHandle) {
@@ -250,6 +282,10 @@ export class Template {
                             }
                         }
                     }
+
+                    // if (eachIfOldNodes?.length > eachIfNodes?.length) {
+                    //     removeNodes(eachIfOldNodes.splice(eachIfNodes?.length));
+                    // }
                 }
             })(this.nodes, oldNodes, container);
         } else {
