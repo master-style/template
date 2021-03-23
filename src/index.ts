@@ -80,38 +80,29 @@ export class Template {
             }
         })(this.template(), this.nodes);
 
-        if (this.nodes.length && this.container === container) {
+        console.log('NOW', this.nodes);
+        console.log('OLD', oldNodes);
+
+        if (this.container === container) {
             (function renderNodes(eachNodes, eachOldNodes, parent) {
-                const eachIfNodes = eachNodes?.filter(eachNode => {
-                    const hasIf = eachNode.hasOwnProperty('$if');
-                    return hasIf && eachNode.$if || !hasIf;
-                });
-
-                const eachIfOldNodes = eachOldNodes?.filter(eachOldNode => {
-                    const hasIf = eachOldNode.hasOwnProperty('$if');
-                    return hasIf && eachOldNode.$if || !hasIf;
-                });
-
-                console.log(eachIfNodes);
-                console.log(eachIfOldNodes);
-
-                if (!eachIfNodes?.length && eachIfOldNodes?.length) {
-                    removeNodes(eachIfOldNodes);
+                if (!eachNodes?.length && eachOldNodes?.length) {
+                    removeNodes(eachOldNodes);
                 } else {
                     let changedIndex = 0;
-                    for (let i = 0; i < eachIfNodes?.length; i++) {
-                        const eachNode = eachIfNodes[i];
+                    for (let i = 0; i < eachNodes?.length; i++) {
+                        const eachNode = eachNodes[i];
                         let eachOldNode, existing, sameTag, sameId, oldElement;
+                        const whether = !eachNode.hasOwnProperty('$if') || eachNode.$if;
 
                         const reloadParams = () => {
-                            eachOldNode = eachIfOldNodes && eachIfOldNodes[i - changedIndex];
+                            eachOldNode = eachOldNodes && eachOldNodes[i - changedIndex];
                             existing = !!eachOldNode?.element;
                             sameTag = eachNode.tag === eachOldNode?.tag;
                             sameId = !eachOldNode?.$id || (eachNode.$id === eachOldNode.$id);
                             oldElement = undefined;
 
                             if (eachNode.$id && !sameId) {
-                                const oldNode = eachIfOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
+                                const oldNode = eachOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
                                 if (oldNode) {
                                     oldElement = oldNode.element;
                                 }
@@ -120,7 +111,7 @@ export class Template {
                         reloadParams();
 
                         if (eachOldNode?.$id && !sameId) {
-                            const node = eachIfNodes.find(eachIfNode => eachIfNode.$id === eachOldNode.$id);
+                            const node = eachNodes.find(eachIfNode => eachIfNode.$id === eachOldNode.$id);
                             if (!node) {
                                 removeNode(eachOldNode);
                                 changedIndex--;
@@ -131,6 +122,9 @@ export class Template {
                         if (existing && !sameTag) {
                             removeNode(eachOldNode);
                         }
+
+                        if (!whether)
+                            continue;
 
                         if (existing && sameTag && !oldElement && sameId) {
                             const element = eachNode.element = eachOldNode?.element;
@@ -221,6 +215,14 @@ export class Template {
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
+                            console.log('-------------------------------------');
+                            console.log('CREATE', existing, sameTag, !oldElement, sameId);
+                            console.log('OLD ELEMENT', oldElement);
+                            console.log('OLD NODE', eachOldNode);
+                            console.log('NODE', eachNode);
+                            console.log('INDEX', i);
+                            console.log('CHANGE INDEX', changedIndex)
+
                             let element;
                             if (oldElement) {
                                 element = eachNode.element = oldElement;
@@ -231,7 +233,10 @@ export class Template {
                                         : eachNode.tag === 'div'
                                             ? div.cloneNode()
                                             : document.createElement(eachNode.tag));
-                                changedIndex++;
+                                
+                                if (!eachOldNode || eachOldNode.hasOwnProperty('$if') && eachOldNode.$if) {
+                                    changedIndex++;
+                                }
                             }
 
                             eachNode.attr && element.attr(eachNode.attr);
@@ -283,9 +288,9 @@ export class Template {
                         }
                     }
 
-                    // if (eachIfOldNodes?.length > eachIfNodes?.length) {
-                    //     removeNodes(eachIfOldNodes.splice(eachIfNodes?.length));
-                    // }
+                    if (eachOldNodes?.length > eachNodes?.length) {
+                        removeNodes(eachOldNodes.splice(eachNodes?.length));
+                    }
                 }
             })(this.nodes, oldNodes, container);
         } else {
