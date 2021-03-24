@@ -80,9 +80,6 @@ export class Template {
             }
         })(this.template(), this.nodes);
 
-        console.log('NOW', this.nodes);
-        console.log('OLD', oldNodes);
-
         if (this.container === container) {
             (function renderNodes(eachNodes, eachOldNodes, parent) {
                 if (!eachNodes?.length && eachOldNodes?.length) {
@@ -111,8 +108,8 @@ export class Template {
                         reloadParams();
 
                         if (eachOldNode?.$id && !sameId) {
-                            const node = eachNodes.find(eachIfNode => eachIfNode.$id === eachOldNode.$id);
-                            if (!node) {
+                            const node = eachNodes.find(eachNode => eachNode.$id === eachOldNode.$id);
+                            if (!node?.element) {
                                 removeNode(eachOldNode);
                                 changedIndex--;
                                 reloadParams();
@@ -215,14 +212,6 @@ export class Template {
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
-                            console.log('-------------------------------------');
-                            console.log('CREATE', existing, sameTag, !oldElement, sameId);
-                            console.log('OLD ELEMENT', oldElement);
-                            console.log('OLD NODE', eachOldNode);
-                            console.log('NODE', eachNode);
-                            console.log('INDEX', i);
-                            console.log('CHANGE INDEX', changedIndex)
-
                             let element;
                             if (oldElement) {
                                 element = eachNode.element = oldElement;
@@ -288,8 +277,10 @@ export class Template {
                         }
                     }
 
-                    if (eachOldNodes?.length > eachNodes?.length) {
-                        removeNodes(eachOldNodes.splice(eachNodes?.length));
+                    const eachIfOldNodes = eachOldNodes?.filter(eachOldNode => !eachOldNode.hasOwnProperty('$if') || eachOldNode.$if);
+                    const eachIfNodes = eachNodes?.filter(eachNode => !eachNode.hasOwnProperty('$if') || eachNode.$if);
+                    if ((eachIfOldNodes?.length + changedIndex) > eachIfNodes?.length) {
+                        removeNodes(eachIfOldNodes.splice(eachIfNodes?.length + changedIndex));
                     }
                 }
             })(this.nodes, oldNodes, container);
