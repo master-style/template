@@ -88,7 +88,7 @@ export class Template {
                     let changedIndex = 0;
                     for (let i = 0; i < eachNodes?.length; i++) {
                         const eachNode = eachNodes[i];
-                        let eachOldNode, existing, sameTag, sameId, oldElement;
+                        let eachOldNode, existing, sameTag, sameId, oldIdElement;
                         const whether = !eachNode.hasOwnProperty('$if') || eachNode.$if;
 
                         const reloadParams = () => {
@@ -96,12 +96,12 @@ export class Template {
                             existing = !!eachOldNode?.element;
                             sameTag = eachNode.tag === eachOldNode?.tag;
                             sameId = !eachOldNode?.$id || (eachNode.$id === eachOldNode.$id);
-                            oldElement = undefined;
+                            oldIdElement = undefined;
 
                             if (eachNode.$id && !sameId) {
                                 const oldNode = eachOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
-                                if (oldNode) {
-                                    oldElement = oldNode.element;
+                                if (oldNode && oldNode.tag === eachNode.tag) {
+                                    oldIdElement = oldNode.element;
                                 }
                             }
                         };
@@ -116,14 +116,10 @@ export class Template {
                             }
                         }
 
-                        if (existing && !sameTag) {
-                            removeNode(eachOldNode);
-                        }
-
-                        if (!whether)
-                            continue;
-
-                        if (existing && sameTag && !oldElement && sameId) {
+                        if (existing && sameTag && !oldIdElement && sameId) {
+                            if (!whether) {
+                                continue;
+                            }
                             const element = eachNode.element = eachOldNode?.element;
                             const attr = eachNode.attr;
                             const oldAttr = eachOldNode?.attr;
@@ -207,14 +203,18 @@ export class Template {
 
                             renderNodes(
                                 eachNode?.children,
-                                eachOldNode?.children, 
+                                eachOldNode?.children,
                                 element);
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
+                            removeNode(eachOldNode);
+                            if (!whether) {
+                                continue;
+                            }
                             let element;
-                            if (oldElement) {
-                                element = eachNode.element = oldElement;
+                            if (oldIdElement) {
+                                element = eachNode.element = oldIdElement;
                             } else {
                                 element = eachNode.element = $(
                                     eachNode.$namespace
@@ -222,7 +222,7 @@ export class Template {
                                         : eachNode.tag === 'div'
                                             ? div.cloneNode()
                                             : document.createElement(eachNode.tag));
-                                
+
                                 if (!eachOldNode || eachOldNode.hasOwnProperty('$if') && eachOldNode.$if) {
                                     changedIndex++;
                                 }
@@ -230,7 +230,7 @@ export class Template {
 
                             eachNode.attr && element.attr(eachNode.attr);
                             eachNode.$css && element.css(eachNode.$css);
-                           
+
                             for (const eachEventType in eachNode?.$on) {
                                 const eachHandle = eachNode.$on[eachEventType];
                                 if (eachHandle) {
