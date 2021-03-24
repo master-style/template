@@ -260,7 +260,7 @@ export class Template {
                             eachNode.$updated?.(element, eachNode);
 
                             if (i === 0) {
-                                parent.prepend(element);
+                                parent.append(element);
                             } else {
                                 const existedElement =
                                     eachNodes
@@ -276,7 +276,7 @@ export class Template {
                                 if (existedElement) {
                                     existedElement.after(element);
                                 } else {
-                                    parent.prepend(element);
+                                    parent.append(element);
                                 }
                             }
                         }
