@@ -25,6 +25,10 @@ body {
 
         margin-top: 0;
     }
+
+    +.shine {
+        border-left: 0;
+    }
 }
 
 @keyframes shine {

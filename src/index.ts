@@ -256,21 +256,25 @@ export class Template {
                             eachNode.$created?.(element, eachNode);
                             eachNode.$updated?.(element, eachNode);
 
-                            const existedElement =
-                                eachNodes
-                                    .slice(0, i)
-                                    .reverse()
-                                    .find((nearNode) => {
-                                        const eachHasIf = nearNode.hasOwnProperty('$if');
-                                        const enabled = eachHasIf && nearNode.$if || !eachHasIf;
-                                        return enabled && nearNode.element;
-                                    })
-                                    ?.element;
-
-                            if (existedElement) {
-                                existedElement.after(element);
-                            } else {
+                            if (i === 0) {
                                 parent.prepend(element);
+                            } else {
+                                const existedElement =
+                                    eachNodes
+                                        .slice(0, i)
+                                        .reverse()
+                                        .find((nearNode) => {
+                                            const eachHasIf = nearNode.hasOwnProperty('$if');
+                                            const enabled = eachHasIf && nearNode.$if || !eachHasIf;
+                                            return enabled && nearNode.element;
+                                        })
+                                        ?.element;
+
+                                if (existedElement) {
+                                    existedElement.after(element);
+                                } else {
+                                    parent.prepend(element);
+                                }
                             }
                         }
                     }
