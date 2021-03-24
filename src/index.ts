@@ -116,10 +116,15 @@ export class Template {
                             }
                         }
 
+                        if (existing && !sameTag) {
+                            removeNode(eachOldNode);
+                        }
+
+                        if (!whether) {
+                            continue;
+                        }
+
                         if (existing && sameTag && !oldIdElement && sameId) {
-                            if (!whether) {
-                                continue;
-                            }
                             const element = eachNode.element = eachOldNode?.element;
                             const attr = eachNode.attr;
                             const oldAttr = eachOldNode?.attr;
@@ -208,10 +213,6 @@ export class Template {
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
-                            removeNode(eachOldNode);
-                            if (!whether) {
-                                continue;
-                            }
                             let element;
                             if (oldIdElement) {
                                 element = eachNode.element = oldIdElement;
@@ -255,24 +256,21 @@ export class Template {
                             eachNode.$created?.(element, eachNode);
                             eachNode.$updated?.(element, eachNode);
 
-                            if (i === 0) {
-                                parent.prepend(element);
-                            } else {
-                                const existedNode =
-                                    eachNodes
-                                        .slice(0, i)
-                                        .reverse()
-                                        .find((nearNode) => {
-                                            const eachHasIf = nearNode.hasOwnProperty('$if');
-                                            return (eachHasIf && nearNode.$if || !eachHasIf)
-                                                && nearNode.element;
-                                        });
+                            const existedElement =
+                                eachNodes
+                                    .slice(0, i)
+                                    .reverse()
+                                    .find((nearNode) => {
+                                        const eachHasIf = nearNode.hasOwnProperty('$if');
+                                        const enabled = eachHasIf && nearNode.$if || !eachHasIf;
+                                        return enabled && nearNode.element;
+                                    })
+                                    ?.element;
 
-                                if (existedNode) {
-                                    existedNode.element.after(element);
-                                } else {
-                                    parent.prepend(element);
-                                }
+                            if (existedElement) {
+                                existedElement.after(element);
+                            } else {
+                                parent.prepend(element);
                             }
                         }
                     }
