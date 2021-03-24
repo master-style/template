@@ -101,9 +101,7 @@ export class Template {
                             if (eachNode.$id && !sameId) {
                                 const oldNode = eachOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
                                 if (oldNode) {
-                                    if (oldNode.tag === eachNode.tag) {
-                                        oldIdElement = oldNode.element;
-                                    }
+                                    oldIdElement = oldNode.element;
                                     oldNode.element.remove();
                                 }
                             }
@@ -217,7 +215,7 @@ export class Template {
                             eachNode.$updated?.(element, eachNode);
                         } else {
                             let element;
-                            if (oldIdElement) {
+                            if (oldIdElement && oldIdElement.tag === eachNode.tag) {
                                 element = eachNode.element = oldIdElement;
                             } else {
                                 element = eachNode.element = $(
@@ -227,7 +225,7 @@ export class Template {
                                             ? div.cloneNode()
                                             : document.createElement(eachNode.tag));
 
-                                if (!eachOldNode || eachOldNode.hasOwnProperty('$if') && eachOldNode.$if) {
+                                if (!oldIdElement && (!eachOldNode || eachOldNode.hasOwnProperty('$if') && eachOldNode.$if)) {
                                     changedIndex++;
                                 }
                             }
