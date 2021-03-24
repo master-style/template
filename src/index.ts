@@ -100,8 +100,11 @@ export class Template {
 
                             if (eachNode.$id && !sameId) {
                                 const oldNode = eachOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
-                                if (oldNode && oldNode.tag === eachNode.tag) {
-                                    oldIdElement = oldNode.element;
+                                if (oldNode) {
+                                    if (oldNode.tag === eachNode.tag) {
+                                        oldIdElement = oldNode.element;
+                                    }
+                                    oldNode.element.remove();
                                 }
                             }
                         };
@@ -109,7 +112,7 @@ export class Template {
 
                         if (eachOldNode?.$id && !sameId) {
                             const node = eachNodes.find(eachNode => eachNode.$id === eachOldNode.$id);
-                            if (!node?.element) {
+                            if (!node) {
                                 removeNode(eachOldNode);
                                 changedIndex--;
                                 reloadParams();
