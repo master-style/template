@@ -11,20 +11,53 @@ export class IfComponent implements OnInit {
 
     constructor() { }
 
-    items = [1, 2, 3, 4, 5];
+    items = [1, 2, 3];
+    items2 = [8, 9, 10];
     disabled = true;
 
     template = new Template(() => [
-        'div',
-        () => this.items.map((item) => [
-            'div', { class: 'shine' }, [
-                'div', {
-                    $text: item,
-                    class: 'shine'
-                },
+        'div', {
+            $html: '<div class="shine">omg'
+        },
+        () => this.items.map((num) => [
+            'div', {
+                class: 'shine',
+                $html: '<div class="shine">' + num
+            }, [
                 'div', {
                     $if: !this.disabled,
                     $text: 'x',
+                    class: 'shine',
+                    style: 'flex: 0 0 auto'
+                },
+                'div', {
+                    $if: !this.disabled,
+                    $text: 'o',
+                    class: 'shine',
+                    style: 'flex: 0 0 auto'
+                },
+            ]
+        ]),
+        [
+            'div', {
+                class: 'shine',
+                $html: '<div class="shine">fuck'
+            }
+        ],
+        () => this.items2.map((num) => [
+            'div', {
+                class: 'shine',
+                $html: '<div class="shine">' + num
+            }, [
+                'div', {
+                    $if: !this.disabled && num === 9,
+                    $text: 'x',
+                    class: 'shine',
+                    style: 'flex: 0 0 auto'
+                },
+                'div', {
+                    $if: !this.disabled,
+                    $text: 'o',
                     class: 'shine',
                     style: 'flex: 0 0 auto'
                 },
@@ -38,7 +71,7 @@ export class IfComponent implements OnInit {
         setTimeout(() => {
             this.disabled = false;
             this.template.render(document.getElementById('if'));
-        }, 500);
+        }, 1000);
     }
 
 }
