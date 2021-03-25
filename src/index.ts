@@ -4,6 +4,11 @@ import { $ } from "@master/dom";
 const fragment = document.createDocumentFragment();
 const div = document.createElement('div');
 
+enum Tag {
+    DIV = 'div',
+    SVG = 'svg'
+}
+
 export interface TemplateNode {
     tag: string;
     attributes?: { [key: string]: any };
@@ -241,7 +246,7 @@ export class Template {
                                 element = eachNode.element = $(
                                     eachNode.$namespace
                                         ? document.createElementNS(eachNode.$namespace, eachNode.tag)
-                                        : eachNode.tag === 'div'
+                                        : eachNode.tag === Tag.DIV
                                             ? div.cloneNode()
                                             : document.createElement(eachNode.tag));
 
@@ -318,7 +323,7 @@ export class Template {
                     const element = eachNode.element = $(
                         eachNode.$namespace
                             ? document.createElementNS(eachNode.$namespace, eachNode.tag)
-                            : eachNode.tag === 'div'
+                            : eachNode.tag === Tag.DIV
                                 ? div.cloneNode()
                                 : document.createElement(eachNode.tag)
                     )
