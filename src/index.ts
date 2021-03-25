@@ -114,6 +114,8 @@ export class Template {
                                 removeNode(eachOldNode);
                                 changedIndex--;
                                 reloadParams();
+                            } else {
+                                eachOldNode.element.remove();
                             }
                         }
 
