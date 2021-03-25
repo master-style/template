@@ -91,6 +91,8 @@ export class Template {
                         let eachOldNode, existing, sameTag, sameId, oldIdElement;
                         const whether = !eachNode.hasOwnProperty('$if') || eachNode.$if;
 
+                        console.log('I', i);
+
                         const reloadParams = () => {
                             eachOldNode = eachOldNodes && eachOldNodes[i - changedIndex];
                             existing = !!eachOldNode?.element;
@@ -98,11 +100,23 @@ export class Template {
                             sameId = !eachOldNode?.$id || (eachNode.$id === eachOldNode.$id);
                             oldIdElement = undefined;
 
-                            if (eachNode.$id && !sameId) {
-                                const oldNode = eachOldNodes.find(eachIfOldNode => eachIfOldNode.$id === eachNode.$id);
-                                if (oldNode) {
-                                    oldIdElement = oldNode.element;
-                                    oldNode.element.remove();
+                            if (eachNode.$id) {
+                                if (!sameId) {
+                                    const oldNode = eachOldNodes.find(eachOldNode => eachOldNode.$id === eachNode.$id);
+                                    if (oldNode) {
+                                        oldIdElement = oldNode.element;
+
+                                        if (eachNodes.find(eachNode => eachNode.$id === eachOldNode.$id)) {
+                                            oldNode.element.remove();
+                                        }
+                                    }
+                                } else {
+                                    const index = eachOldNodes.findIndex(eachOldNode => eachOldNode.$id === eachNode.$id);
+                                    if (index === i + changedIndex + 1) {
+                                        eachOldNode.element.remove();
+                                        changedIndex--;
+                                        reloadParams();
+                                    }
                                 }
                             }
                         };
@@ -115,18 +129,13 @@ export class Template {
                                 changedIndex--;
                                 reloadParams();
                             } else {
-                               
-
                                 if (index === i + changedIndex + 1) {
-                                    changedIndex++;
+                                    if (!oldIdElement) {
+                                        changedIndex++;
+                                    }
                                 } else {
                                     eachOldNode.element.remove();
                                 }
-
-                                // if (index === i + changedIndex + 1) {
-                                //     changedIndex--;
-                                //     // reloadParams();
-                                // }
                             }
                         }
 
@@ -137,6 +146,8 @@ export class Template {
                         if (!whether) {
                             continue;
                         }
+
+                        console.log(existing, sameTag, !oldIdElement, sameId);
 
                         if (existing && sameTag && !oldIdElement && sameId) {
                             const element = eachNode.element = eachOldNode?.element;
@@ -227,6 +238,8 @@ export class Template {
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
+                            console.log('ADD', oldIdElement);
+
                             let element;
                             if (oldIdElement && oldIdElement.tag === eachNode.tag) {
                                 element = eachNode.element = oldIdElement;
@@ -296,6 +309,7 @@ export class Template {
                     const eachIfOldNodes = eachOldNodes?.filter(eachOldNode => !eachOldNode.hasOwnProperty('$if') || eachOldNode.$if);
                     const eachIfNodes = eachNodes?.filter(eachNode => !eachNode.hasOwnProperty('$if') || eachNode.$if);
                     if ((eachIfOldNodes?.length + changedIndex) > eachIfNodes?.length) {
+                        console.log('REMOVE');
                         removeNodes(eachIfOldNodes.splice(eachIfNodes?.length + changedIndex));
                     }
                 }
