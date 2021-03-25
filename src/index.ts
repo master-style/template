@@ -6,7 +6,8 @@ const div = document.createElement('div');
 
 enum Tag {
     DIV = 'div',
-    SVG = 'svg'
+    SVG = 'svg',
+    TEXT = '$text'
 }
 
 export interface TemplateNode {
@@ -58,7 +59,8 @@ export class Template {
                 } else {
                     const hasIf = eachNode.hasOwnProperty('$if');
                     const whether = hasIf && eachNode.$if || !hasIf;
-                    if (Array.isArray(token) && whether) {
+                    const isTextNode = eachNode.tag === '$text';
+                    if (Array.isArray(token) && whether && !isTextNode) {
                         if (!eachNode.children) eachNode.children = [];
                         generate(token, eachNode.children);
                     } else if (tokenType === 'function' && whether) {
@@ -150,36 +152,85 @@ export class Template {
                             continue;
                         }
 
+                        const isTextNode = eachNode.tag === '$text';
+
                         if (existing && sameTag && !oldIdElement && sameId) {
                             const element = eachNode.element = eachOldNode?.element;
-                            const attr = eachNode.attr;
-                            const oldAttr = eachOldNode?.attr;
-                            const css = eachNode.$css;
-                            const oldCss = eachOldNode?.$css;
-                            const html = eachNode.$html;
-                            const oldHtml = eachOldNode?.$html;
-                            const htmlUpdated = '$html' in eachNode && html !== oldHtml;
+
                             const text = eachNode.$text;
                             const oldText = eachOldNode?.$text;
-                            const textUpdated = '$text' in eachNode && text !== oldText;
                             const oldOn = eachOldNode.$on;
 
-                            // clear
-                            if (oldAttr) {
-                                for (const attrKey in oldAttr) {
-                                    if (!(attrKey in attr)) {
-                                        element.removeAttribute(attrKey);
+                            if (isTextNode) {
+                                element.textContent = text;
+                            } else {
+                                const attr = eachNode.attr;
+                                const oldAttr = eachOldNode?.attr;
+                                const css = eachNode.$css;
+                                const oldCss = eachOldNode?.$css;
+                                const html = eachNode.$html;
+                                const oldHtml = eachOldNode?.$html;
+                                const htmlUpdated = '$html' in eachNode && html !== oldHtml;
+                                const textUpdated = '$text' in eachNode && text !== oldText;
+                                // clear
+                                if (oldAttr) {
+                                    for (const attrKey in oldAttr) {
+                                        if (!(attrKey in attr)) {
+                                            element.removeAttribute(attrKey);
+                                        }
                                     }
                                 }
-                            }
 
-                            // clear
-                            if (oldCss) {
-                                for (const propKey in oldCss) {
-                                    if (!(propKey in css)) {
-                                        element.style.removeProperty(propKey);
+                                // clear
+                                if (oldCss) {
+                                    for (const propKey in oldCss) {
+                                        if (!(propKey in css)) {
+                                            element.style.removeProperty(propKey);
+                                        }
                                     }
                                 }
+
+                                // clear
+                                if (!('$html' in eachNode) && ('$html' in eachOldNode)) {
+                                    element.innerHTML = '';
+                                } else if (!('$text' in eachNode) && ('$text' in eachOldNode)) {
+                                    element.textContent = '';
+                                }
+
+                                if (attr) {
+                                    for (const attrKey in attr) {
+                                        const value = attr[attrKey];
+                                        const oldValue = oldAttr[attrKey];
+                                        if (value !== oldValue) {
+                                            element.attr(attrKey, value);
+                                        }
+                                    }
+                                }
+
+                                for (const propKey in css) {
+                                    const value = css[propKey];
+                                    const oldValue = oldCss[propKey];
+                                    if (value !== oldValue) {
+                                        element.css(propKey, value);
+                                    }
+                                }
+
+                                if (htmlUpdated) {
+                                    element.innerHTML = html;
+                                } else if (textUpdated) {
+                                    element.textContent = text;
+                                }
+
+                                if (
+                                    (htmlUpdated || textUpdated) && eachOldNode?.children
+                                ) {
+                                    eachOldNode.children = [];
+                                }
+
+                                renderNodes(
+                                    eachNode?.children,
+                                    eachOldNode?.children,
+                                    element);
                             }
 
                             // clear
@@ -188,54 +239,12 @@ export class Template {
                                 element.off(eachHandle);
                             }
 
-                            // clear
-                            if (!('$html' in eachNode) && ('$html' in eachOldNode)) {
-                                element.innerHTML = '';
-                            } else if (!('$text' in eachNode) && ('$text' in eachOldNode)) {
-                                element.textContent = '';
-                            }
-
-                            if (attr) {
-                                for (const attrKey in attr) {
-                                    const value = attr[attrKey];
-                                    const oldValue = oldAttr[attrKey];
-                                    if (value !== oldValue) {
-                                        element.attr(attrKey, value);
-                                    }
-                                }
-                            }
-
-                            for (const propKey in css) {
-                                const value = css[propKey];
-                                const oldValue = oldCss[propKey];
-                                if (value !== oldValue) {
-                                    element.css(propKey, value);
-                                }
-                            }
-
                             for (const eachEventType in eachNode?.$on) {
                                 const eachHandle = eachNode.$on[eachEventType];
                                 element.on(eachEventType, eachHandle, {
                                     passive: true
                                 });
                             }
-
-                            if (htmlUpdated) {
-                                element.innerHTML = html;
-                            } else if (textUpdated) {
-                                element.textContent = text;
-                            }
-
-                            if (
-                                (htmlUpdated || textUpdated) && eachOldNode?.children
-                            ) {
-                                eachOldNode.children = [];
-                            }
-
-                            renderNodes(
-                                eachNode?.children,
-                                eachOldNode?.children,
-                                element);
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
@@ -248,36 +257,41 @@ export class Template {
                                         ? document.createElementNS(eachNode.$namespace, eachNode.tag)
                                         : eachNode.tag === Tag.DIV
                                             ? div.cloneNode()
-                                            : document.createElement(eachNode.tag));
+                                            : eachNode.tag === Tag.TEXT
+                                                ? document.createTextNode(eachNode.$text)
+                                                : document.createElement(eachNode.tag)
+                                );
 
                                 if (!oldIdElement && (!eachOldNode || eachOldNode.hasOwnProperty('$if') && eachOldNode.$if)) {
                                     changedIndex++;
                                 }
                             }
 
-                            eachNode.attr && element.attr(eachNode.attr);
-                            eachNode.$css && element.css(eachNode.$css);
+                            if (!isTextNode) {
+                                eachNode.attr && element.attr(eachNode.attr);
+                                eachNode.$css && element.css(eachNode.$css);
 
-                            for (const eachEventType in eachNode?.$on) {
-                                const eachHandle = eachNode.$on[eachEventType];
-                                if (eachHandle) {
-                                    element.on(eachEventType, eachHandle, {
-                                        passive: true
-                                    });
+                                for (const eachEventType in eachNode?.$on) {
+                                    const eachHandle = eachNode.$on[eachEventType];
+                                    if (eachHandle) {
+                                        element.on(eachEventType, eachHandle, {
+                                            passive: true
+                                        });
+                                    }
                                 }
-                            }
 
-                            if ('$html' in eachNode) {
-                                element.innerHTML = eachNode.$html;
-                            } else if ('$text' in eachNode) {
-                                element.textContent = eachNode.$text;
-                            }
+                                if ('$html' in eachNode) {
+                                    element.innerHTML = eachNode.$html;
+                                } else if ('$text' in eachNode) {
+                                    element.textContent = eachNode.$text;
+                                }
 
-                            if (eachOldNode?.children) {
-                                eachOldNode.children = [];
-                            }
+                                if (eachOldNode?.children) {
+                                    eachOldNode.children = [];
+                                }
 
-                            renderNodes(eachNode?.children, eachOldNode?.children, element);
+                                renderNodes(eachNode?.children, eachOldNode?.children, element);
+                            }
 
                             eachNode.$created?.(element, eachNode);
                             eachNode.$updated?.(element, eachNode);
@@ -325,7 +339,9 @@ export class Template {
                             ? document.createElementNS(eachNode.$namespace, eachNode.tag)
                             : eachNode.tag === Tag.DIV
                                 ? div.cloneNode()
-                                : document.createElement(eachNode.tag)
+                                : eachNode.tag === Tag.TEXT
+                                    ? document.createTextNode(eachNode.$text)
+                                    : document.createElement(eachNode.tag)
                     )
 
                     eachNode.$created?.(element, eachNode);
