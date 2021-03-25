@@ -109,13 +109,24 @@ export class Template {
                         reloadParams();
 
                         if (eachOldNode?.$id && !sameId) {
-                            const node = eachNodes.find(eachNode => eachNode.$id === eachOldNode.$id);
-                            if (!node) {
+                            const index = eachNodes.findIndex(eachNode => eachNode.$id === eachOldNode.$id);
+                            if (index === -1) {
                                 removeNode(eachOldNode);
                                 changedIndex--;
                                 reloadParams();
                             } else {
-                                eachOldNode.element.remove();
+                               
+
+                                if (index === i + changedIndex + 1) {
+                                    changedIndex++;
+                                } else {
+                                    eachOldNode.element.remove();
+                                }
+
+                                // if (index === i + changedIndex + 1) {
+                                //     changedIndex--;
+                                //     // reloadParams();
+                                // }
                             }
                         }
 
@@ -260,7 +271,7 @@ export class Template {
                             eachNode.$updated?.(element, eachNode);
 
                             if (i === 0) {
-                                parent.append(element);
+                                parent.prepend(element);
                             } else {
                                 const existedElement =
                                     eachNodes
@@ -276,7 +287,7 @@ export class Template {
                                 if (existedElement) {
                                     existedElement.after(element);
                                 } else {
-                                    parent.append(element);
+                                    parent.prepend(element);
                                 }
                             }
                         }
