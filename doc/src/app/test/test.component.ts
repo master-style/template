@@ -108,11 +108,9 @@ export class TestComponent implements OnInit {
 
     render() {
         const container = document.querySelector('#create2');
-        if (!this.batching) {
-            this.coreService.performStart();
-            this.template.render(container);
-            this.coreService.performEnd();
-            this.coreService.times ++;
-        }
+        this.coreService.performStart();
+        this.template.render(container);
+        this.coreService.performEnd();
+        this.coreService.times++;
     }
 }
