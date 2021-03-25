@@ -1,9 +1,4 @@
-body {
-    background-color: #191919;
-    color: white;
-    font-size: 1rem;
-    font-family: PingFang TC, -apple-system, Noto Sans TC, Helvetica Neue, Microsoft JhengHei, sans-serif;
-}
+@import '~@master/ui/dist/index.css';
 
 .shine {
     animation: shine .5s linear;

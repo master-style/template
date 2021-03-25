@@ -1,8 +1,9 @@
-<div style="max-width: 800px; margin: auto; padding: 5vw">
-    <button (click)="insert()">insert</button>
-    <button (click)="push()">push</button>
-    <button (click)="splice()">splice</button>
-    <button (click)="replace()">replace</button>
-    <button (click)="exchange()">exchange</button>
-    <div *ngFor="let eachData of data; trackBy: trackById" class="shine">{{ eachData.id }}</div>
+<div class="y:xs">
+    <m-button (click)="insert()" class="x outlined xs">insert</m-button>
+    <m-button (click)="insertNoneId()" class="x outlined xs">insert None Id</m-button>
+    <m-button (click)="push()" class="x outlined xs">push</m-button>
+    <m-button (click)="splice()" class="x outlined xs">splice</m-button>
+    <m-button (click)="replace()" class="x outlined xs">replace</m-button>
+    <m-button (click)="exchange()" class="x outlined xs">exchange</m-button>
 </div>
+<div *ngFor="let eachData of data; trackBy: trackById" class="shine">{{ eachData.id || eachData.text }}</div>

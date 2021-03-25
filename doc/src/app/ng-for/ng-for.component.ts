@@ -9,7 +9,7 @@ export class NgForComponent implements OnInit {
 
     constructor() { }
 
-    data: any = [
+    data: any[] = [
         { id: 1 },
         { id: 2 },
         { id: 3 },
@@ -22,6 +22,10 @@ export class NgForComponent implements OnInit {
 
     insert() {
         this.data.splice(1, 0, { id: 'insert-' + new Date().getTime() });
+    }
+
+    insertNoneId() {
+        this.data.splice(1, 0, { text: 'anonymous' });
     }
 
     push() {
