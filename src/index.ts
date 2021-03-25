@@ -91,8 +91,6 @@ export class Template {
                         let eachOldNode, existing, sameTag, sameId, oldIdElement;
                         const whether = !eachNode.hasOwnProperty('$if') || eachNode.$if;
 
-                        console.log('I', i);
-
                         const reloadParams = () => {
                             eachOldNode = eachOldNodes && eachOldNodes[i - changedIndex];
                             existing = !!eachOldNode?.element;
