@@ -9,7 +9,7 @@
     border-radius: .3125rem;
     border: 1px solid rgba(255, 255, 255, .05);
     background-color: rgba(255, 255, 255, .05);
-    margin-bottom: .5rem;
+    margin: .5rem 0;
 
     >.shine+.shine {
         border-left: 0;
@@ -17,7 +17,7 @@
     }
 
     >.shine {
-        margin-bottom: 0;
+        margin: 0;
         border-radius: 0;
 
         &:first-child {

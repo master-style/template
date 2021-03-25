@@ -18,8 +18,8 @@ export class TestComponent implements OnInit {
         'div', { class: 'shine', $text: '2' },
         'div', { class: 'shine', $text: '3 🔑', $id: '3' },
         'div', { class: 'shine', $text: '4 🔑', $id: '4' },
-        'div', { class: 'shine', $text: '5' },
         '$text', { $text: 'text node' },
+        'div', { class: 'shine', $text: '5' },
     ];
 
     template = new Template(() => {
