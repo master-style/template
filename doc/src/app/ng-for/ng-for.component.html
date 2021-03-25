@@ -19,4 +19,13 @@
     </m-input>
 </div>
 <hr class="my">
-<div *ngFor="let eachData of data; trackBy: trackById" class="shine">{{ eachData.id || eachData.text }}</div>
+<div class="y">
+    <div class="x:6">
+        track by
+        <div *ngFor="let eachData of data; trackBy: trackById" class="shine">{{ eachData.id || eachData.text }}</div>
+    </div>
+    <div class="x:6">
+        no track
+        <div *ngFor="let eachData of data" class="shine">{{ eachData.id || eachData.text }}</div>
+    </div>
+</div>
