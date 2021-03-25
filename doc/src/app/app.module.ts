@@ -7,12 +7,14 @@ import { NgForComponent } from './ng-for/ng-for.component';
 import { IfComponent } from './if/if.component';
 import { FormsModule } from '@angular/forms';
 import { FormModule } from '@master/angular';
+import { TestComponent } from './test/test.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         NgForComponent,
-        IfComponent
+        IfComponent,
+        TestComponent
     ],
     imports: [
         BrowserModule,
