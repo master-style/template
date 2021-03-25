@@ -16,8 +16,8 @@ export class TestComponent implements OnInit {
     data = [
         'div', { class: 'shine', $text: '1' },
         'div', { class: 'shine', $text: '2' },
-        'div', { class: 'shine', $text: '3', $id: '3' },
-        'div', { class: 'shine', $text: '4', $id: '4' },
+        'div', { class: 'shine', $text: '3 🔑', $id: '3' },
+        'div', { class: 'shine', $text: '4 🔑', $id: '4' },
         'div', { class: 'shine', $text: '5' }
     ];
 
@@ -44,7 +44,7 @@ export class TestComponent implements OnInit {
             : this.index;
 
         this.data.splice(index, 0, 'div');
-        this.data.splice(index + 1, 0, { class: 'shine', $text: $id, $id });
+        this.data.splice(index + 1, 0, { class: 'shine', $text: $id + ' 🔑', $id });
 
         this.render();
     }
