@@ -1,5 +1,10 @@
 
 <div style="max-width: 800px; margin: auto; padding: 5vw">
+    <div class="y:xs">
+        <m-button routerLink="./if" class="x outlined xs">if</m-button>
+        <m-button routerLink="./ng-for" class="x outlined xs">ng-for</m-button>
+        <m-button routerLink="./test" class="x outlined xs">test</m-button>
+    </div>
     <p>
         首次執行<b style="margin-left: 2rem">{{ coreService.firstPerformanceTime | number:'0.5' }} ms</b>
     </p>
@@ -8,6 +13,4 @@
     </p>
     <hr class="my">
     <router-outlet></router-outlet>
-
-    <div id="create"></div>
 </div>
