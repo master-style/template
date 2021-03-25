@@ -147,8 +147,6 @@ export class Template {
                             continue;
                         }
 
-                        console.log(existing, sameTag, !oldIdElement, sameId);
-
                         if (existing && sameTag && !oldIdElement && sameId) {
                             const element = eachNode.element = eachOldNode?.element;
                             const attr = eachNode.attr;
@@ -238,8 +236,6 @@ export class Template {
 
                             eachNode.$updated?.(element, eachNode);
                         } else {
-                            console.log('ADD', oldIdElement);
-
                             let element;
                             if (oldIdElement && oldIdElement.tag === eachNode.tag) {
                                 element = eachNode.element = oldIdElement;
@@ -309,7 +305,6 @@ export class Template {
                     const eachIfOldNodes = eachOldNodes?.filter(eachOldNode => !eachOldNode.hasOwnProperty('$if') || eachOldNode.$if);
                     const eachIfNodes = eachNodes?.filter(eachNode => !eachNode.hasOwnProperty('$if') || eachNode.$if);
                     if ((eachIfOldNodes?.length + changedIndex) > eachIfNodes?.length) {
-                        console.log('REMOVE');
                         removeNodes(eachIfOldNodes.splice(eachIfNodes?.length + changedIndex));
                     }
                 }
