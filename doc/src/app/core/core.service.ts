@@ -8,7 +8,7 @@ export class CoreService {
     constructor() { }
 
     timeStart;
-    times;
+    times = 0;
     firstPerformanceTime;
     performanceTime
 

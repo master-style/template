@@ -1,22 +1,60 @@
-<div class="y:xs">
-    <m-button (click)="insert()" class="x outlined xs">insert</m-button>
-    <m-button (click)="insertNoneId()" class="x outlined xs">insert None Id</m-button>
-    <m-button (click)="push()" class="x outlined xs">push</m-button>
-    <m-button (click)="splice()" class="x outlined xs">splice</m-button>
-    <m-button (click)="replace()" class="x outlined xs">replace</m-button>
-    <m-input [(ngModel)]="index" class="x outlined xs" type="number">
-        <span part="head" class="f:fade">at</span>
-    </m-input>
+<div class="y:xl">
+    <div class="x:4">
+        <div class="y">
+            <div class="x:12">
+                <m-check [(ngModel)]="batching" interface="switch" class="a:middle">
+                    <span class="ml:sm">批次模式</span>
+                </m-check>
+            </div>
+            <div class="x:12">
+                <hr>
+            </div>
+            <div class="x:12">
+                <div class="y:sm">
+                    <div class="remark x:12">欲執行動作</div>
+                    <p class="x:12">
+                        Exchange from 1 to 3
+                    </p>
+                </div>
+            </div>
+            <div class="x:12" *ngIf="batching">
+                <m-button (click)="batch()" class="x theme+ w:full">apply</m-button>
+            </div>
+            <div class="x:12">
+                <hr>
+            </div>
+            <div class="x:12">
+                首次執行
+                <b style="margin-left: 2rem">{{ coreService.firstPerformanceTime ? (coreService.firstPerformanceTime | number:'0.5') + ' ms' : '尚未執行' }}</b>
+            </div>
+            <div class="x:12">
+                每次執行
+                <b style="margin-left: 2rem">{{ coreService.performanceTime ? (coreService.performanceTime | number:'0.5') + ' ms' : '尚未執行' }}</b>
+            </div>
+        </div>
+    </div>
+    <div class="x:8">
+        <div class="y:sm">
+            <m-button (click)="insert()" class="x outlined xs">insert</m-button>
+            <m-button (click)="insertNoneId()" class="x outlined xs">insert None Id</m-button>
+            <m-button (click)="push()" class="x outlined xs">push</m-button>
+            <m-button (click)="splice()" class="x outlined xs">splice</m-button>
+            <m-button (click)="replace()" class="x outlined xs">replace</m-button>
+            <m-input [(ngModel)]="index" class="x outlined xs" type="number">
+                <span part="head" class="f:fade">at</span>
+            </m-input>
+        </div>
+        <hr class="my">
+        <div class="y:sm">
+            <m-button (click)="exchange()" class="x outlined xs">exchange</m-button>
+            <m-input [(ngModel)]="from" class="x outlined xs" type="number">
+                <span part="head" class="f:fade">from</span>
+            </m-input>
+            <m-input [(ngModel)]="to" class="x outlined xs" type="number">
+                <span part="head" class="f:fade">to</span>
+            </m-input>
+        </div>
+        <hr class="my">
+        <div id="create2"></div>
+    </div>
 </div>
-<hr class="my">
-<div class="y:xs">
-    <m-button (click)="exchange()" class="x outlined xs">exchange</m-button>
-    <m-input [(ngModel)]="from" class="x outlined xs" type="number">
-        <span part="head" class="f:fade">from</span>
-    </m-input>
-    <m-input [(ngModel)]="to" class="x outlined xs" type="number">
-        <span part="head" class="f:fade">to</span>
-    </m-input>
-</div>
-<hr class="my">
-<div id="create2"></div>

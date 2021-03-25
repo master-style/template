@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Template } from '../../../../src';
+import { CoreService } from '../core/core.service';
 
 @Component({
     selector: 'app-test',
@@ -8,7 +9,9 @@ import { Template } from '../../../../src';
 })
 export class TestComponent implements OnInit {
 
-    constructor() { }
+    constructor(
+        public coreService: CoreService
+    ) { }
 
     data = [
         'div', { class: 'shine', $text: '1' },
@@ -25,6 +28,9 @@ export class TestComponent implements OnInit {
     index = 0;
     from = 1;
     to = 3;
+
+    batching = false;
+    actions = [];
 
     ngOnInit(): void {
         this.render();
@@ -96,8 +102,17 @@ export class TestComponent implements OnInit {
         this.render();
     }
 
+    batch() {
+
+    }
+
     render() {
         const container = document.querySelector('#create2');
-        this.template.render(container);
+        if (!this.batching) {
+            this.coreService.performStart();
+            this.template.render(container);
+            this.coreService.performEnd();
+            this.coreService.times ++;
+        }
     }
 }
