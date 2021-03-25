@@ -90,7 +90,7 @@ export class Template {
         if (this.container === container) {
             (function renderNodes(eachNodes, eachOldNodes, parent) {
                 if (!eachNodes?.length && eachOldNodes?.length) {
-                    removeNodes(eachOldNodes);
+                    removeElementsByNodes(eachOldNodes);
                 } else {
                     let changedIndex = 0;
                     for (let i = 0; i < eachNodes?.length; i++) {
@@ -112,13 +112,13 @@ export class Template {
                                         oldIdElement = oldNode.element;
 
                                         if (eachNodes.find(eachNode => eachNode.$id === eachOldNode.$id)) {
-                                            oldNode.element.remove();
+                                            removeElementByNode(oldNode);
                                         }
                                     }
                                 } else {
                                     const index = eachOldNodes.findIndex(eachOldNode => eachOldNode.$id === eachNode.$id);
                                     if (index === i + changedIndex + 1) {
-                                        eachOldNode.element.remove();
+                                        removeElementByNode(eachOldNode);
                                         changedIndex--;
                                         reloadParams();
                                     }
@@ -130,7 +130,7 @@ export class Template {
                         if (eachOldNode?.$id && !sameId) {
                             const index = eachNodes.findIndex(eachNode => eachNode.$id === eachOldNode.$id);
                             if (index === -1) {
-                                removeNode(eachOldNode);
+                                removeElementByNode(eachOldNode);
                                 changedIndex--;
                                 reloadParams();
                             } else {
@@ -139,13 +139,13 @@ export class Template {
                                         changedIndex++;
                                     }
                                 } else {
-                                    eachOldNode.element.remove();
+                                    removeElementByNode(eachOldNode);
                                 }
                             }
                         }
 
                         if (existing && !sameTag) {
-                            removeNode(eachOldNode);
+                            removeElementByNode(eachOldNode);
                         }
 
                         if (!whether) {
@@ -322,7 +322,7 @@ export class Template {
                     const eachIfOldNodes = eachOldNodes?.filter(eachOldNode => !eachOldNode.hasOwnProperty('$if') || eachOldNode.$if);
                     const eachIfNodes = eachNodes?.filter(eachNode => !eachNode.hasOwnProperty('$if') || eachNode.$if);
                     if ((eachIfOldNodes?.length + changedIndex) > eachIfNodes?.length) {
-                        removeNodes(eachIfOldNodes.splice(eachIfNodes?.length + changedIndex));
+                        removeElementsByNodes(eachIfOldNodes.splice(eachIfNodes?.length + changedIndex));
                     }
                 }
             })(this.nodes, oldNodes, container);
@@ -378,23 +378,23 @@ export class Template {
     remove() {
         if (this.nodes.length) {
             this.container = null;
-            removeNodes(this.nodes);
+            removeElementsByNodes(this.nodes);
             this.nodes = [];
         }
         return this;
     }
 }
 
-const removeNode = (node) => {
+const removeElementByNode = (node) => {
     if (!node?.element) return;
     node.element.remove();
     node.$removed?.(node.element, node);
 };
 
-const removeNodes = (eachNodes) => {
+const removeElementsByNodes = (eachNodes) => {
     if (!eachNodes) return;
     eachNodes
         .forEach((eachNode) => {
-            removeNode(eachNode);
+            removeElementByNode(eachNode);
         });
 };
