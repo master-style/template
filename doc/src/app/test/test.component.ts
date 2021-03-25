@@ -33,15 +33,23 @@ export class TestComponent implements OnInit {
 	insert() {
 		const $id = 'insert-' + new Date().getTime();
 
-		this.data.splice(this.index, 0, 'div');
-		this.data.splice(this.index + 1, 0, { class: 'shine', $text: $id, $id });
+        const index = this.index % 2
+            ? this.index - 1 
+            : this.index;
+
+		this.data.splice(index, 0, 'div');
+		this.data.splice(index + 1, 0, { class: 'shine', $text: $id, $id });
 
 		this.render();
 	}
 
 	insertNoneId() {
-		this.data.splice(this.index, 0, 'div');
-		this.data.splice(this.index + 1, 0, { class: 'shine', $text: 'no-id-insert-' + new Date().getTime().toString() });
+        const index = this.index % 2
+            ? this.index - 1 
+            : this.index;
+
+		this.data.splice(index, 0, 'div');
+		this.data.splice(index + 1, 0, { class: 'shine', $text: 'no-id-insert-' + new Date().getTime().toString() });
 
 		this.render();
 	}
@@ -55,7 +63,11 @@ export class TestComponent implements OnInit {
 	}
 
 	splice() {
-		this.data.splice(this.index, 2);
+        const index = this.index % 2
+            ? this.index
+            : this.index - 1;
+
+		this.data.splice(index, 2);
 		
 		console.log(this.data);
 
@@ -65,7 +77,11 @@ export class TestComponent implements OnInit {
 	replace() {
 		const $id = 'replace-' + new Date().getTime();
 
-		this.data.splice(this.index, 1, { class: 'shine', $text: $id });
+        const index = this.index % 2
+            ? this.index + 1
+            : this.index;
+
+		this.data.splice(index, 1, { class: 'shine', $text: $id });
 
 		this.render();
 	}
