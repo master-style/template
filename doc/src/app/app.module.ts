@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgForComponent } from './ng-for/ng-for.component';
 import { IfComponent } from './if/if.component';
+import { FormsModule } from '@angular/forms';
+import { FormModule } from '@master/angular';
 
 @NgModule({
     declarations: [
@@ -14,7 +16,9 @@ import { IfComponent } from './if/if.component';
     ],
     imports: [
         BrowserModule,
-        AppRoutingModule
+        AppRoutingModule,
+        FormsModule,
+        FormModule
     ],
     providers: [],
     bootstrap: [AppComponent],

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Template } from '../../../src';
+import { CoreService } from './core/core.service';
 
 @Component({
     selector: 'app-root',
@@ -8,11 +9,9 @@ import { Template } from '../../../src';
 })
 export class AppComponent implements OnInit {
 
-    constructor() { }
-
-    times = 0;
-    performanceTime = 0;
-    firstPerformanceTime = 0;
+    constructor(
+        public coreService: CoreService
+    ) { }
 
     items: any = [];
 
@@ -23,7 +22,7 @@ export class AppComponent implements OnInit {
     template = new Template(() => {
         return [
             'div', { class: 'shine', $text: '1', $if: this.if },
-            'div', { class: 'shine', $text: this.times, name: this.times, disabled: true },
+            'div', { class: 'shine', $text: this.coreService.times, name: this.coreService.times, disabled: true },
             'div', { class: 'shine', $text: '2', $if: this.if }, [
                 'div', { class: 'shine', $text: '3' }, () => this.items.map((item) => [
                     'div', { class: 'shine', $text: item }
@@ -52,31 +51,31 @@ export class AppComponent implements OnInit {
 
     ngOnInit(): void {
 
-        const container = document.querySelector('#create');
+        // const container = document.querySelector('#create');
 
-        this.timer = setInterval(() => {
-            const t1 = performance.now();
-            this.template.render(container);
-            this.performanceTime = performance.now() - t1;
-            if (this.times === 0) {
-                this.firstPerformanceTime = this.performanceTime;
-            }
-            this.times++;
-            if (this.times % 4 === 0) {
-                this.items = [];
-            } else {
-                this.items.push(this.times);
-            }
-            if (this.tagName === 'div') {
-                this.tagName = 'a';
-            } else {
-                this.tagName = 'div';
-            }
-        }, 1000);
+        // this.timer = setInterval(() => {
+        //     const t1 = performance.now();
+        //     this.template.render(container);
+        //     this.performanceTime = performance.now() - t1;
+        //     if (this.times === 0) {
+        //         this.firstPerformanceTime = this.performanceTime;
+        //     }
+        //     this.times++;
+        //     if (this.times % 4 === 0) {
+        //         this.items = [];
+        //     } else {
+        //         this.items.push(this.times);
+        //     }
+        //     if (this.tagName === 'div') {
+        //         this.tagName = 'a';
+        //     } else {
+        //         this.tagName = 'div';
+        //     }
+        // }, 1000);
 
-        setTimeout(() => {
-            this.if = true;
-        }, 3000);
+        // setTimeout(() => {
+        //     this.if = true;
+        // }, 3000);
 
     }
 

@@ -12,6 +12,7 @@
     "license": "MIT",
     "private": false,
     "dependencies": {
+        "@master/angular": "^1.0.3",
         "@master/ui": "^1.0.0-alpha.40"
     },
     "devDependencies": {

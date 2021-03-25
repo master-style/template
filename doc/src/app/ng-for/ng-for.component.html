@@ -4,6 +4,19 @@
     <m-button (click)="push()" class="x outlined xs">push</m-button>
     <m-button (click)="splice()" class="x outlined xs">splice</m-button>
     <m-button (click)="replace()" class="x outlined xs">replace</m-button>
-    <m-button (click)="exchange()" class="x outlined xs">exchange</m-button>
+    <m-input [(ngModel)]="index" class="x outlined xs" type="number">
+        <span part="head" class="f:fade">at</span>
+    </m-input>
 </div>
+<hr class="my">
+<div class="y:xs">
+    <m-button (click)="exchange()" class="x outlined xs">exchange</m-button>
+    <m-input [(ngModel)]="from" class="x outlined xs" type="number">
+        <span part="head" class="f:fade">from</span>
+    </m-input>
+    <m-input [(ngModel)]="to" class="x outlined xs" type="number">
+        <span part="head" class="f:fade">to</span>
+    </m-input>
+</div>
+<hr class="my">
 <div *ngFor="let eachData of data; trackBy: trackById" class="shine">{{ eachData.id || eachData.text }}</div>
