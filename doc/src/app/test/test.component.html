@@ -37,13 +37,15 @@
                     <div class="remark x:12">欲執行動作</div>
                     <div class="x:12">
                         <div class="y:sm">
-                            <m-chip class="x theme+">
-                                <span part="head">Exchange</span>
-                                from 1 to 3
-                            </m-chip>
-                            <m-chip class="x theme+">
-                                <span part="head">Exchange</span>
-                                from 1 to 3
+                            <m-chip class="x:12 theme+" *ngFor="let action of actions">
+                                <span part="head">{{ action.name }}</span>
+                                <ng-container [ngSwitch]="action.name">
+                                    <span *ngSwitchCase="'EXCHANGE'">from {{ action.params[0] }} to {{ action.params[1] }}</span>
+                                    <span *ngSwitchCase="'INSERT ID'">index {{ action.params[0] }}</span>
+                                    <span *ngSwitchCase="'INSERT'">index {{ action.params[0] }}</span>
+                                    <span *ngSwitchCase="'SPLICE'">index {{ action.params[0] }}</span>
+                                    <span *ngSwitchCase="'REPLACE'">index {{ action.params[0] }}</span>
+                                </ng-container>
                             </m-chip>
                         </div>
                     </div>

@@ -156,7 +156,7 @@ export class Template {
                                     const existedOldNode = existedOldNodes[existedOldNodeIndex];
                                     if (eachExistedOldNode.$id) {
                                         // 待實作刪除舊有 $id 的模擬
-                                        console.log('插入新 $id 元素');
+                                        // console.log('插入新 $id 元素');
                                         operators.push({ action: 'REMOVE', oldNode: existedOldNode });
                                         existedOldNodes.splice(existedOldNodeIndex, 1);
                                     } else {
@@ -265,7 +265,6 @@ export class Template {
             for (const eachOperator of operators) {
                 switch (eachOperator.action) {
                     case 'ADD':
-                        console.log(eachOperator);
                         const newElement = eachOperator.node.element = eachOperator.oldIdElement;
 
                         if (eachOperator.node.tag !== '$text') {

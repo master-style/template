@@ -18,8 +18,8 @@ export class TestComponent implements OnInit {
         'div', { class: 'shine', $text: '2' },
         'div', { class: 'shine', $text: '3 🔑', $id: '3' },
         'div', { class: 'shine', $text: '4 🔑', $id: '4' },
-        'div', { class: 'shine', $text: '5' },
         '$text', { $text: 'text node' },
+        'div', { class: 'shine', $text: '5' },
     ];
 
     template = new Template(() => {
@@ -41,46 +41,86 @@ export class TestComponent implements OnInit {
         const $id = 'insert-' + new Date().getTime();
 
         const index = this.index % 2
-            ? this.index - 1
+            ? this.index + 1
             : this.index;
 
-        this.data.splice(index, 0, 'div');
-        this.data.splice(index + 1, 0, { class: 'shine', $text: $id + ' 🔑', $id });
+        const action = () => {
+            this.data.splice(index, 0, 'div');
+            this.data.splice(index + 1, 0, { class: 'shine', $text: $id + ' 🔑', $id });
+        }
 
-        this.render();
+        if (this.batching) {
+            this.actions.push({
+                name: 'INSERT ID',
+                params: [index],
+                action
+            });
+        } else {
+            action();
+            this.render();
+        }
     }
 
     insertNoneId() {
         const index = this.index % 2
-            ? this.index - 1
+            ? this.index + 1
             : this.index;
 
-        this.data.splice(index, 0, 'div');
-        this.data.splice(index + 1, 0, { class: 'shine', $text: 'no-id-insert-' + new Date().getTime().toString() });
+        const action = () => {
+            this.data.splice(index, 0, 'div');
+            this.data.splice(index + 1, 0, { class: 'shine', $text: 'no-id-insert-' + new Date().getTime().toString() });
+        };
 
-        this.render();
+        if (this.batching) {
+            this.actions.push({
+                name: 'INSERT',
+                params: [index],
+                action
+            });
+        } else {
+            action();
+            this.render();
+        }
     }
 
     push() {
         const $id = 'push-' + new Date().getTime();
 
-        this.data.push(...['div', { class: 'shine', $text: $id, $id }]);
+        const action = () => {
+            this.data.push(...['div', { class: 'shine', $text: $id, $id }]);
+        };
 
-        this.render();
+        if (this.batching) {
+            this.actions.push({
+                name: 'PUSH',
+                params: [],
+                action
+            });
+        } else {
+            action();
+            this.render();
+        }
     }
 
     splice() {
         const index = this.index % 2
-            ? this.index
-            : this.index - 1;
+            ? this.index - 1
+            : this.index;
 
-        this.data.splice(index, 2);
+        const action = () => {
+            this.data.splice(index, 2);
+        };
 
-        console.log(this.data);
-
-        console.log(this.data);
-
-        this.render();
+        if (this.batching) {
+            this.actions.push({
+                name: 'SPLICE',
+                params: [index],
+                action
+            });
+        } else {
+            action();
+            this.render();
+        }
     }
 
     replace() {
@@ -89,22 +129,50 @@ export class TestComponent implements OnInit {
             ? this.index
             : this.index + 1;
 
-        this.data.splice(index, 1, { class: 'shine', $text: $id });
-        // console.log(this.data);
-        this.render();
+        const action = () => {
+            this.data.splice(index, 1, { class: 'shine', $text: $id });
+        };
+
+        if (this.batching) {
+            this.actions.push({
+                name: 'REPLACE',
+                params: [index],
+                action
+            });
+        } else {
+            action();
+            this.render();
+        }
     }
 
     exchange() {
-        const a = this.data[this.from];
-        const b = this.data[this.to];
-        this.data[this.to] = a;
-        this.data[this.from] = b;
+        const action = () => {
+            const a = this.data[this.from];
+            const b = this.data[this.to];
+            this.data[this.to] = a;
+            this.data[this.from] = b;
+        };
 
-        this.render();
+        if (this.batching) {
+            this.actions.push({
+                name: 'EXCHANGE',
+                params: [this.from, this.to],
+                action
+            });
+        } else {
+            action();
+            this.render();
+        }
     }
 
     batch() {
+        for (const eachAction of this.actions) {
+            eachAction.action();
+        }
 
+        console.log(this.data);
+
+        this.render();
     }
 
     render() {
