@@ -109,6 +109,10 @@ export class Template {
                 operators = [...operators];
                 removedIdNodes = [...removedIdNodes];
 
+                // console.log('PARENT NODE', parentNode);
+                // console.log('NODES', nodes);
+                // console.log('OLD NODES', oldNodes);
+
                 function insertElement(index, parentNode, node, oldNode, oldIdElement, nodes, oldNodes, operators) {
                     if (!oldIdElement) {
                         oldIdElement = $(
@@ -131,6 +135,21 @@ export class Template {
                             ...simulation(
                                 0, 
                                 oldIdElement ?? oldNode.element,
+                                node?.children,
+                                oldNode?.children,
+                                [],
+                                []));
+                    }
+                }
+
+                function changeElement(node, oldNode, operators) {
+                    operators.push({ action: 'CHANGE', node: node, oldNode: oldNode });
+
+                    if (node.tag !== '$text') {
+                        operators.push(
+                            ...simulation(
+                                0, 
+                                oldNode.element,
                                 node?.children,
                                 oldNode?.children,
                                 [],
@@ -188,7 +207,7 @@ export class Template {
                                 } else {
                                     const removedIdNodeIndex = removedIdNodes.findIndex(eachRemovedIdNode => eachRemovedIdNode.$id === eachIfNode.$id);
                                     if (removedIdNodeIndex !== -1) {
-                                        // console.log('插入已刪除的舊有 $id 元素');
+                                        // console.log('(情況3) 插入已刪除的舊有 $id 元素');
                                         const removeIdNode = removedIdNodes[removedIdNodeIndex];
                                         insertElement(i, parentNode, eachIfNode, removeIdNode, removeIdNode.element, ifNodes, existedOldNodes, operators);
                                         removedIdNodes.splice(removedIdNodeIndex, 1);
@@ -198,7 +217,7 @@ export class Template {
                             }
                         } else {
                             if (eachExistedOldNode.$id) {
-                                // console.log('(情況1) 移除舊有 $id 元素');
+                                // console.log('(情況4) 移除舊有 $id 元素');
                                 const cloneExistedOldNodes = [...existedOldNodes];
                                 const cloneOperators = [...operators];
                                 cloneOperators.push({ action: 'REMOVE', oldNode: eachExistedOldNode });
@@ -206,7 +225,7 @@ export class Template {
                                 removedIdNodes.push(eachExistedOldNode);
                                 const operatorResult = simulation(i, parentNode, ifNodes, cloneExistedOldNodes, cloneOperators, removedIdNodes);
 
-                                // console.log('(情況2) 插入新非 $id 元素');
+                                // console.log('(情況5) 插入新非 $id 元素');
                                 const cloneExistedOldNodes2 = [...existedOldNodes];
                                 const cloneOperators2 = [...operators];
                                 insertElement(i, parentNode, eachIfNode, null, null, ifNodes, cloneExistedOldNodes2, cloneOperators2);
@@ -216,13 +235,13 @@ export class Template {
                                     ? operatorResult2
                                     : operatorResult;
                             } else if (eachExistedOldNode.tag !== eachIfNode.tag) {
-                                // console.log('在非 $id 元素前插入新非 $id 元素');
+                                // console.log('(情況6) 在非 $id 元素前插入新非 $id 元素');
                                 const cloneExistedOldNodes = [...existedOldNodes];
                                 const cloneOperators = [...operators];
                                 insertElement(i, parentNode, eachIfNode, null, null, ifNodes, cloneExistedOldNodes, cloneOperators);
                                 const operatorResult = simulation(i + 1, parentNode, ifNodes, cloneExistedOldNodes, cloneOperators, removedIdNodes);
 
-                                // console.log('移除舊有非 $id 且 tag 不同元素');
+                                // console.log('(情況7) 移除舊有非 $id 且 tag 不同元素');
                                 const cloneExistedOldNodes2 = [...existedOldNodes];
                                 const cloneOperators2 = [...operators];
                                 cloneOperators2.push({ action: 'DELETE', oldNode: eachExistedOldNode });
@@ -232,23 +251,28 @@ export class Template {
                                 return operatorResult.filter(eachOperatorResult => eachOperatorResult.action === 'ADD').length > operatorResult2.filter(eachOperatorResult2 => eachOperatorResult2.action === 'ADD').length
                                     ? operatorResult2
                                     : operatorResult;
+                            } else if (eachExistedOldNode.children?.length || eachIfNode.children?.length) {
+                                // console.log('(情況8) 插入新非 $id 元素');
+                                const cloneExistedOldNodes = [...existedOldNodes];
+                                const cloneOperators = [...operators];
+                                insertElement(i, parentNode, eachIfNode, null, null, ifNodes, cloneExistedOldNodes, cloneOperators);
+                                const operatorResult = simulation(i + 1, parentNode, ifNodes, cloneExistedOldNodes, cloneOperators, removedIdNodes);
+
+                                // console.log('(情況9) 覆蓋原有非 $id 元素');
+                                const cloneExistedOldNodes2 = [...existedOldNodes];
+                                const cloneOperators2 = [...operators];
+                                changeElement(eachIfNode, eachExistedOldNode, cloneOperators2);
+                                const operatorResult2 = simulation(i + 1, parentNode, ifNodes, cloneExistedOldNodes2, cloneOperators2, removedIdNodes);
+
+                                return operatorResult.filter(eachOperatorResult => eachOperatorResult.action === 'ADD').length > operatorResult2.filter(eachOperatorResult2 => eachOperatorResult2.action === 'ADD').length
+                                    ? operatorResult2
+                                    : operatorResult;
                             }
                         }
                     }
 
                     if (sameTag && sameId) {
-                        operators.push({ action: 'CHANGE', node: eachIfNode, oldNode: eachExistedOldNode });
-
-                        if (eachIfNode.tag !== '$text') {
-                            operators.push(
-                                ...simulation(
-                                    0, 
-                                    eachExistedOldNode.element,
-                                    eachIfNode?.children,
-                                    eachExistedOldNode?.children,
-                                    [],
-                                    []));
-                        }
+                        changeElement(eachIfNode, eachExistedOldNode, operators);
                     } else {
                         insertElement(i, parentNode, eachIfNode, null, null, ifNodes, existedOldNodes, operators);
                     }
@@ -354,7 +378,7 @@ export class Template {
                             if (attr) {
                                 for (const attrKey in attr) {
                                     const value = attr[attrKey];
-                                    const oldValue = oldAttr[attrKey];
+                                    const oldValue = oldAttr?.[attrKey];
                                     if (value !== oldValue) {
                                         element.attr(attrKey, value);
                                     }
@@ -363,7 +387,7 @@ export class Template {
 
                             for (const propKey in css) {
                                 const value = css[propKey];
-                                const oldValue = oldCss[propKey];
+                                const oldValue = oldCss?.[propKey];
                                 if (value !== oldValue) {
                                     element.css(propKey, value);
                                 }
