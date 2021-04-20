@@ -284,7 +284,7 @@ export class Template {
 
                 return operators;
             })(0, container, this.nodes, oldNodes, [], []);
-            console.log(operators);
+            // console.log(operators);
 
             for (const eachOperator of operators) {
                 switch (eachOperator.action) {

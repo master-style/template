@@ -3,6 +3,7 @@
         "outDir": "./dist",
         "sourceMap": true,
         "declaration": true,
+        "removeComments": true,
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "esModuleInterop": true,
